@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 웹툰 아카이빙</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background-color: #f9f9f9; }
+        h1, h2 {color: #333; }
+        .form-section, .list-section { background: white; padding: 20px; border-radius: 80px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #45a049; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th {background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h1>📚 나만의 웹툰 아카이빙 서비스</h1>
+
+    <!-- 1. 웹툰 등록 폼 -->
+    <div class="form-section">
+        <h2>✨ 새 웹툰 등록하기</h2>
+        <form id="webtoonForm">
+            <div class="form-group">
+                <label for="title">웹툰 제목</label>
+                <input type="text" id="title" required placeholder="예: 화산귀환">
+            </div>
+            <div class="form-group">
+                <label for="author">작가명</label>
+                <input type="text" id="author" required placeholder="예: 비가/LICO">
+            </div>
+            <div class="form-group">
+                <label for="platform">연재 플랫폼</label>
+                <select id="platform">
+                    <option value="네이버웹툰"></option>
+                    <option value="카카오페이지">카카오페이지</option>
+                    <option value="카카오웹툰">카카오웹툰</option>
+                    <option value="기타">기타</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status">나의 감상 상태</label>
+                <select id="status">
+                    <option value="보는 중">보는 중</option>
+                    <option value="완결">완결</option>
+                    <option value="정주행 완료">정주행 완료</option>
+                    <option vlaue="하차">하차</option>
+                </select>
+            </div>
+            <button type="submit">등록하기</button>
+        </form>
+    </div>
+
+    <!-- 2. 웹툰 아카이빙 목록-->
+</body>
+
+</html>
