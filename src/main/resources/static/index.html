@@ -67,6 +67,7 @@
                     <th>작가</th>
                     <th>플랫폼</th>
                     <th>상태</th>
+                    <th>관리</th>
                 </tr>
             </thead>
             <tbody id="webtoonTableBody">
@@ -100,6 +101,9 @@
                         <td>${webtoon.author}</td>
                         <td>${webtoon.platform}</td>
                         <td>${webtoon.status}</td>
+                        <td>
+                            <button onclick="deleteWebtoon(${webtoon.id})" style="background-color: #f44336; padding: 5px 10px; font-size: 14px;">삭제</button>
+                        </td>
                     </tr>`;
                     tableBody.innerHTML += row;
                 });
@@ -126,7 +130,7 @@
                 body: JSON.stringify(webtoonData)
             })
             .then(response => {
-                if(response.ok) {
+                if (response.ok) {
                     alert("웹툰이 성공적으로 등록되었습니다!");
                     document.getElementById("webtoonForm").reset(); // 폼 비우기
                     loadWebtoons(); // 목록 새로고침
@@ -136,6 +140,26 @@
             })
             .catch(error => console.error("데이터 전송 실패: ", error));
         });
+
+        // 3. 웹툰 삭제하기 (DELETE)
+        function deleteWebtoon(id) {
+            if (!confirm("정말 이 웹툰을 아카이브에서 삭제하겠습니까?")) {
+                return; // 사용자가 '취소'를 누르면 함수를 종료함
+            }
+
+            fetch(`/api/webtoons/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("웹툰이 성공적으로 삭제되었습니다.");
+                    loadWebtoons(); // 목록 새로고침
+                } else {
+                    alert("삭제에 실패했습니다.");
+                }
+            })
+            .catch(error => console.error("데이터 삭제 실패: ", error));
+        }
      </script>
 </body>
 </html>
