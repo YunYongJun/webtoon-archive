@@ -32,4 +32,13 @@ public class WebtoonApiController {
         return webtoonService.findAllWebtoons();
    }
 
+   /* 3. 웹툰 삭제 API (DELETE 방식) 
+   * 주소창에 /api/webtoons/{id} 형태로 들어오는 ID 값을 받아 해당 웹툰을 지움
+   */
+   @DeleteMapping("/{id}")
+   public void deleteWebtoon(@PathVariable("id") Long id) {
+     // @PathVariable은 주소창의 {id} 자리에 들어오는 숫자를 자바 변수로 매핑해 줌
+          webtoonService.deleteWebtoon(id);
+   }
+   
 }
