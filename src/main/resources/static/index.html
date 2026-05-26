@@ -5,37 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나만의 웹툰 아카이빙</title>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background-color: #f9f9f9; }
-        h1, h2 {color: #333; }
-        .form-section, .list-section { background: white; padding: 20px; border-radius: 40px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        body { font-family: 'Malgun Gothic', sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; background-color: #f9f9f9; }
+        h1, h2, h3 { color: #333; }
+        .form-section, .list-section, .review-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
         .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
         button:hover { background-color: #45a049; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th {background-color: #f2f2f2; }
+        th { background-color: #f2f2f2; }
+        .review-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .stars { color: #ffbc00; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>📚 나만의 웹툰 아카이빙 서비스</h1>
 
-    <!-- 1. 웹툰 등록 폼 -->
     <div class="form-section">
         <h2>✨ 새 웹툰 등록하기</h2>
         <form id="webtoonForm">
+            <div class="form-group"><label>웹툰 제목</label><input type="text" id="title" required placeholder="예: 화산귀환"></div>
+            <div class="form-group"><label>작가명</label><input type="text" id="author" required placeholder="예: 비가/LICO"></div>
             <div class="form-group">
-                <label for="title">웹툰 제목</label>
-                <input type="text" id="title" required placeholder="예: 화산귀환">
-            </div>
-            <div class="form-group">
-                <label for="author">작가명</label>
-                <input type="text" id="author" required placeholder="예: 비가/LICO">
-            </div>
-            <div class="form-group">
-                <label for="platform">연재 플랫폼</label>
+                <label>연재 플랫폼</label>
                 <select id="platform">
                     <option value="네이버웹툰">네이버웹툰</option>
                     <option value="카카오페이지">카카오페이지</option>
@@ -44,7 +39,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="status">나의 감상 상태</label>
+                <label>나의 감상 상태</label>
                 <select id="status">
                     <option value="보는 중">보는 중</option>
                     <option value="완결">완결</option>
@@ -56,8 +51,7 @@
         </form>
     </div>
 
-    <!-- 2. 웹툰 아카이빙 목록-->
-     <div class="list-section">
+    <div class="list-section">
         <h2>내 아카이브 리스트</h2>
         <table>
             <thead>
@@ -70,51 +64,72 @@
                     <th>관리</th>
                 </tr>
             </thead>
-            <tbody id="webtoonTableBody">
-                <!-- 자바 스크립트가 여기에 데이터를 동적으로 넣어줌 -->
-            </tbody>
+            <tbody id="webtoonTableBody"></tbody>
         </table>
-     </div>
+    </div>
 
-     <script>
-        // 페이지가 로드되면 자동으로 기존 웹툰 목록을 불러옴
+    <div id="reviewSection" class="review-section" style="display: none;">
+        <h3>💬 <span id="selectedWebtoonTitle"></span> - 리뷰 및 별점</h3>
+        
+        <form id="reviewForm" style="margin-bottom: 20px;">
+            <input type="hidden" id="selectedWebtoonId">
+            <div class="form-group">
+                <label>별점</label>
+                <select id="rating">
+                    <option value="5">⭐⭐⭐⭐⭐ (5점)</option>
+                    <option value="4">⭐⭐⭐⭐ (4점)</option>
+                    <option value="3">⭐⭐⭐ (3점)</option>
+                    <option value="2">⭐⭐ (2점)</option>
+                    <option value="1">⭐ (1점)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>한 줄 평</label>
+                <input type="text" id="comment" required placeholder="이 웹툰에 대한 한 줄 평을 남겨주세요!">
+            </div>
+            <button type="submit" background-color: #008CBA;>리뷰 등록</button>
+        </form>
+
+        <div id="reviewList"></div>
+    </div>
+
+    <script>
         document.addEventListener("DOMContentLoaded", loadWebtoons);
+        let currentWebtoonId = null;
 
         // 1. 웹툰 목록 불러오기 (GET)
         function loadWebtoons() {
             fetch('/api/webtoons')
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById("webtoonTableBody");
-                tableBody.innerHTML = ""; // 기존 테이블 초기화
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("webtoonTableBody");
+                    tableBody.innerHTML = "";
 
-                if (data.length === 0) {
-                    tableBody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>등록된 웹툰이 없습니다. 첫 웹툰을 등록해 보세요!</td></tr>";
-                    return;
-                }
+                    if (data.length === 0) {
+                        tableBody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>등록된 웹툰이 없습니다.</td></tr>";
+                        return;
+                    }
 
-                data.forEach((webtoon, index) => {
-                    const row = 
-                    `<tr>
-                        <td>${index + 1}</td>
-                        <td><strong>${webtoon.title}</strong></td>
-                        <td>${webtoon.author}</td>
-                        <td>${webtoon.platform}</td>
-                        <td>${webtoon.status}</td>
-                        <td>
-                            <button onclick="deleteWebtoon(${webtoon.id})" style="background-color: #f44336; padding: 5px 10px; font-size: 14px;">삭제</button>
-                        </td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
+                    data.forEach((webtoon, index) => {
+                        const row = 
+                        `<tr>
+                            <td>${index + 1}</td>
+                            <td><a href="#" onclick="openReviewSection(${webtoon.id}, '${webtoon.title}')"><strong>${webtoon.title}</strong></a></td>
+                            <td>${webtoon.author}</td>
+                            <td>${webtoon.platform}</td>
+                            <td>${webtoon.status}</td>
+                            <td>
+                                <button onclick="deleteWebtoon(${webtoon.id})" style="background-color: #f44336; padding: 5px 10px; font-size: 12px;">삭제</button>
+                            </td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    });
                 });
-            })
-            .catch(error => console.error("데이터 로드 실패: ", error));
         }
 
         // 2. 웹툰 등록하기 (POST)
         document.getElementById("webtoonForm").addEventListener("submit", function(e) {
-            e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
-
+            e.preventDefault();
             const webtoonData = {
                 title: document.getElementById("title").value,
                 author: document.getElementById("author").value,
@@ -124,42 +139,84 @@
 
             fetch('/api/webtoons', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(webtoonData)
-            })
-            .then(response => {
-                if (response.ok) {
+            }).then(response => {
+                if(response.ok) {
                     alert("웹툰이 성공적으로 등록되었습니다!");
-                    document.getElementById("webtoonForm").reset(); // 폼 비우기
-                    loadWebtoons(); // 목록 새로고침
-                } else {
-                    alert("등록에 실패했습니다.");
+                    document.getElementById("webtoonForm").reset();
+                    loadWebtoons();
                 }
-            })
-            .catch(error => console.error("데이터 전송 실패: ", error));
+            });
         });
 
         // 3. 웹툰 삭제하기 (DELETE)
         function deleteWebtoon(id) {
-            if (!confirm("정말 이 웹툰을 아카이브에서 삭제하겠습니까?")) {
-                return; // 사용자가 '취소'를 누르면 함수를 종료함
-            }
-
-            fetch(`/api/webtoons/${id}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert("웹툰이 성공적으로 삭제되었습니다.");
-                    loadWebtoons(); // 목록 새로고침
-                } else {
-                    alert("삭제에 실패했습니다.");
-                }
-            })
-            .catch(error => console.error("데이터 삭제 실패: ", error));
+            if (!confirm("정말 이 웹툰을 삭제하시겠습니까?")) return;
+            fetch(`/api/webtoons/${id}`, { method: 'DELETE' })
+                .then(response => {
+                    if (response.ok) {
+                        alert("삭제되었습니다.");
+                        document.getElementById("reviewSection").style.display = "none";
+                        loadWebtoons();
+                    }
+                });
         }
-     </script>
+
+        // 4. 리뷰 섹션 열기 & 리뷰 목록 조회 (GET)
+        function openReviewSection(id, title) {
+            currentWebtoonId = id;
+            document.getElementById("selectedWebtoonId").value = id;
+            document.getElementById("selectedWebtoonTitle").innerText = title;
+            document.getElementById("reviewSection").style.display = "block";
+            
+            loadReviews(id);
+        }
+
+        function loadReviews(webtoonId) {
+            fetch(`/api/webtoons/${webtoonId}/reviews`)
+                .then(response => response.json())
+                .then(reviews => {
+                    const reviewList = document.getElementById("reviewList");
+                    reviewList.innerHTML = "";
+
+                    if(reviews.length === 0) {
+                        reviewList.innerHTML = "<p style='color:#777;'>아직 작성된 리뷰가 없습니다. 첫 리뷰를 작성해 보세요!</p>";
+                        return;
+                    }
+
+                    reviews.forEach(review => {
+                        const starString = "⭐".repeat(review.rating);
+                        const item = `<div class="review-item">
+                            <span class="stars">${starString}</span>
+                            <p style="margin: 5px 0 0 0;">${review.comment}</p>
+                        </div>`;
+                        reviewList.innerHTML += item;
+                    });
+                });
+        }
+
+        // 5. 리뷰 등록하기 (POST)
+        document.getElementById("reviewForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const webtoonId = document.getElementById("selectedWebtoonId").value;
+            const reviewData = {
+                rating: parseInt(document.getElementById("rating").value),
+                comment: document.getElementById("comment").value
+            };
+
+            fetch(`/api/webtoons/${webtoonId}/reviews`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reviewData)
+            }).then(response => {
+                if(response.ok) {
+                    alert("리뷰가 등록되었습니다!");
+                    document.getElementById("comment").value = ""; // 입력창 비우기
+                    loadReviews(webtoonId); // 리뷰 목록 새로고침
+                }
+            });
+        });
+    </script>
 </body>
 </html>
