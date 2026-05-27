@@ -1,5 +1,6 @@
 package com.example.webtoon_archive.controller;
 
+import com.example.webtoon_archive.dto.WebtoonSaveRequest;
 import com.example.webtoon_archive.domain.Webtoon;
 import com.example.webtoon_archive.service.WebtoonService;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +18,15 @@ public class WebtoonApiController {
         this.webtoonService = webtoonService;
     }
 
-    /* 1. 웹툰 등록 API (POST 방식) 
+    /* 1. 웹툰 등록 API (POST 방식 / DTO 반영) 
     * 브라우저에서 보낸 JSON 데이터를 받아와 DB에 저장
     */
    @PostMapping
-   public Long createWebtoon(@RequestBody Webtoon webtoon) {
-        // RequestBody는 사용자가 보낸 JSON 데이터를 자바 객체(Webtoon)로 자동 변환해 줌
+   public Long createWebtoon(@RequestBody WebtoonSaveRequest request) {
+        // RequestBody는 사용자가 보낸 JSON 데이터를 자바 객체로 자동 변환해 줌
+        // 1. 화면에서 보낸 JSON이 WebtoonSaveRequest DTO 객체로 안전하게 바인딩됨
+        // 2. DTO를 엔티티로 변환하여 서비스단으로 넘겨줌
+        Webtoon webtoon = request.toEntity();
         return webtoonService.saveWebtoon(webtoon);
    }
 
