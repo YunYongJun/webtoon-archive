@@ -1,6 +1,7 @@
 package com.example.webtoon_archive.controller;
 
 import com.example.webtoon_archive.dto.WebtoonSaveRequest;
+import com.example.webtoon_archive.dto.WebtoonResponse;
 import com.example.webtoon_archive.domain.Webtoon;
 import com.example.webtoon_archive.service.WebtoonService;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +31,11 @@ public class WebtoonApiController {
         return webtoonService.saveWebtoon(webtoon);
    }
 
-   /* 2. 웹툰 전체 목록 조회 API (GET 방식) */
+   /* 2. 웹툰 전체 목록 조회 API (GET 방식 / DTO 반영) */
    @GetMapping
-   public List<Webtoon> getAllWebtoons() {
-        return webtoonService.findAllWebtoons();
+   public List<WebtoonResponse> getAllWebtoons() {
+          List<Webtoon> webtoons = webtoonService.findAllWebtoons();
+        return webtoons.stream().map(WebtoonResponse::new).toList();
    }
 
    /* 3. 웹툰 삭제 API (DELETE 방식) 
