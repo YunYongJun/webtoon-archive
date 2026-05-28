@@ -38,6 +38,16 @@ public class WebtoonApiController {
         return webtoons.stream().map(WebtoonResponse::new).toList();
    }
 
+   /* 특정 웹툰 상세 조회 API (테스트용) 
+   * 주소 예시: GET /api/webtoons/99999
+   */
+   @GetMapping("/{id}")
+   public WebtoonResponse getWebtoon(@PathVariable("id") Long id) {
+     // 서비스의 findOne 메서드 안에서 .orElseThrow(() -> new IllegalArgumentExcption(...))가 터짐
+     Webtoon webtoon = webtoonService.findOne(id);
+     return new WebtoonResponse(webtoon);
+   }
+
    /* 3. 웹툰 삭제 API (DELETE 방식) 
    * 주소창에 /api/webtoons/{id} 형태로 들어오는 ID 값을 받아 해당 웹툰을 지움
    */
