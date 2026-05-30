@@ -4,6 +4,7 @@ import com.example.webtoon_archive.dto.WebtoonSaveRequest;
 import com.example.webtoon_archive.dto.WebtoonResponse;
 import com.example.webtoon_archive.domain.Webtoon;
 import com.example.webtoon_archive.service.WebtoonService;
+import com.example.webtoon_archive.dto.WebtoonSearchCondition;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,4 +58,11 @@ public class WebtoonApiController {
           webtoonService.deleteWebtoon(id);
    }
    
+   /* 4. 웹툰 동적 검색 API (GET 방식) 
+   * 주소 예시: GET /api/webtoons/search?title=화산&platform=네이버웹툰
+   */
+   @GetMapping("/search")
+   public List<WebtoonResponse> searchWebtoons(WebtoonSearchCondition condition) {
+    return webtoonService.searchWebtoons(condition).stream().map(WebtoonResponse::new).toList();
+   }
 }
