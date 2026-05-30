@@ -2,6 +2,7 @@ package com.example.webtoon_archive.service;
 
 import com.example.webtoon_archive.domain.Webtoon;
 import com.example.webtoon_archive.repository.WebtoonRepository;
+import com.example.webtoon_archive.dto.WebtoonSearchCondition;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,5 +42,10 @@ public class WebtoonService {
     @Transactional
     public void deleteWebtoon(Long id) {
         webtoonRepository.deleteById(id);
+    }
+
+    /* 5. 조건별 웹툰 동적 검색하기 (QueryDSL 반영) */
+    public List<Webtoon> searchWebtoons(WebtoonSearchCondition condition) {
+        return webtoonRepository.search(condition);
     }
 }
