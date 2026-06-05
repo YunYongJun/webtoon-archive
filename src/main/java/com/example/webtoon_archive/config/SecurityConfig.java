@@ -8,11 +8,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.*;
 
 @Configuration
 @EnableWebSecurity // 스프링 시큐리티 설정을 활성화
 public class SecurityConfig {
     
+    private final JwtProvider jwtProvider;
+
+    public SecurityConfig(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+    }
+
     // 비밀번호를 안전하게 암호화(해싱)해주는 빈(Bean)을 등록 (BCrypt 알고리즘 사용)
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -33,7 +40,9 @@ public class SecurityConfig {
             .requestMatchers("/", "/index.html", "/api/users/signup", "/api/users/login", "/api/webtoons/search").permitAll()
             // 그 외에 웹툰 등록, 삭제, 리뷰 작성 등 모든 요청은 인증(로그인)이 필요하도록 잠금
             .anyRequest().authenticated()
-        );
+        )
+        // 스프링 기본 인증 필터가 동작하기 바로 직전에 우리가 만든 JWT 검문소를 통과하도록 배치
+        .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
