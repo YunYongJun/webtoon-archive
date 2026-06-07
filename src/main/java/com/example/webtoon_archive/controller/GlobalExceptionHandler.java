@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @RestControllerAdvice // 모든 RestController에서 발생하는 예외를 여기서 모아서 처리
 public class GlobalExceptionHandler {
@@ -37,5 +38,24 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * DTO 유효성 검증(@Valid) 실패 시 발생하는 예외를 처리합니다. (400 Bad Request)
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(
+            MethodArgumentNotValidException ex) {
+        
+        // 에러 메시지 중 첫 번째 에러 문구를 가져옵니다.
+        String defaultMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+
+        com.example.webtoon_archive.dto.ErrorResponse errorResponse = new com.example.webtoon_archive.dto.ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.name(),
+                defaultMessage
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }
