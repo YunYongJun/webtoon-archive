@@ -209,12 +209,13 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(signupData)
-            }).then(response => {
+            }).then(async response => {
                 if(response.ok) {
                     alert("회원가입이 완료되었습니다! 로그인을 진행해 주세요.");
                     document.getElementById("signupForm").reset();
                 } else {
-                    alert("회원가입 실패 (아이디 중복 확인)");
+                    const errorData = await response.json();
+                    alert(`회원가입 실패: ${errorData.message}`);
                 }
             });
         });
