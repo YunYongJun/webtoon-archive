@@ -1,7 +1,9 @@
 package com.example.webtoon_archive.service;
 
 import com.example.webtoon_archive.domain.Webtoon;
+import com.example.webtoon_archive.domain.User;
 import com.example.webtoon_archive.repository.WebtoonRepository;
+import com.example.webtoon_archive.repository.UserRepository;
 import com.example.webtoon_archive.dto.WebtoonSearchCondition;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +16,23 @@ public class WebtoonService {
     
     // 레포지토리를 가져와서 사용해야 하므로 주입을 받음
     private final WebtoonRepository webtoonRepository;
+    private final UserRepository userRepository;
 
     // 생성자 주입 방식 (스프링이 자동으로 의존성을 연결해 줌)
-    public WebtoonService(WebtoonRepository webtoonRepository) {
+    public WebtoonService(WebtoonRepository webtoonRepository, UserRepository userRepository) {
         this.webtoonRepository = webtoonRepository;
+        this.userRepository = userRepository;
     }
 
     /* 1. 새 웹툰 저장하기 */ 
     @Transactional // 데이터를 DB에 넣거나 수정할 때는 readOnly를 끄기 위해 별도로 붙임
-    public Long saveWebtoon(Webtoon webtoon) {
-        Webtoon saveWebtoon = webtoonRepository.save(webtoon);
-        return saveWebtoon.getId(); // 저장된 웬툰의 고유 ID(PK)를 반환
+    public Long saveWebtoon(Webtoon webtoon, String username) {
+        // 로그인한 username으로 회원 엔티티를 찾아서 웹툰에 세팅해줍니다.
+        User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        
+        webtoon.setUser(user);
+        return webtoonRepository.save(webtoon).getId();
     }
 
     /* 2. 전체 웹툰 목록 조회하기 */
