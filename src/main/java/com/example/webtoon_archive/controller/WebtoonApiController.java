@@ -8,6 +8,7 @@ import com.example.webtoon_archive.dto.WebtoonSearchCondition;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.security.Principal;
 
 @RestController // 이 클래스가 JSON 데이터를 반환하는 REST API 컨트롤러임을 선언
 @RequestMapping("/api/webtoons") // 이 컨트롤러의 모든 주소는 /api/webtoons 로 시작
@@ -24,12 +25,15 @@ public class WebtoonApiController {
     * 브라우저에서 보낸 JSON 데이터를 받아와 DB에 저장
     */
    @PostMapping
-   public Long createWebtoon(@RequestBody WebtoonSaveRequest request) {
-        // RequestBody는 사용자가 보낸 JSON 데이터를 자바 객체로 자동 변환해 줌
-        // 1. 화면에서 보낸 JSON이 WebtoonSaveRequest DTO 객체로 안전하게 바인딩됨
-        // 2. DTO를 엔티티로 변환하여 서비스단으로 넘겨줌
+   public Long createWebtoon(@RequestBody WebtoonSaveRequest request, Principal principal) {
+        if (principal == null) {
+          throw new IllegalArgumentException("로그인이 필요한 서비스입니다.");
+        }
+
         Webtoon webtoon = request.toEntity();
-        return webtoonService.saveWebtoon(webtoon);
+        String username = principal.getName();
+        
+        return webtoonService.saveWebtoon(webtoon, username);
    }
 
    /* 2. 웹툰 전체 목록 조회 API (GET 방식 / DTO 반영) */
