@@ -3,6 +3,7 @@ package com.example.webtoon_archive.controller;
 import com.example.webtoon_archive.dto.UserSignupRequest;
 import com.example.webtoon_archive.dto.UserLoginRequest;
 import com.example.webtoon_archive.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +20,7 @@ public class UserApiController {
     * 주소: POST /api/users/signup
     */
     @PostMapping("/signup")
-    public String signup(@RequestBody UserSignupRequest request) {
+    public String signup(@Valid @RequestBody UserSignupRequest request) {
         userService.signup(request);
         return "회원가입이 성공적으로 완료되었습니다.";
     }
