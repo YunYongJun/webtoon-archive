@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -16,6 +17,8 @@ import com.querydsl.core.types.Path;
 public class QWebtoon extends EntityPathBase<Webtoon> {
 
     private static final long serialVersionUID = -1053642542L;
+
+    private static final PathInits INITS = PathInits.DIRECT2;
 
     public static final QWebtoon webtoon = new QWebtoon("webtoon");
 
@@ -29,16 +32,27 @@ public class QWebtoon extends EntityPathBase<Webtoon> {
 
     public final StringPath title = createString("title");
 
+    public final QUser user;
+
     public QWebtoon(String variable) {
-        super(Webtoon.class, forVariable(variable));
+        this(Webtoon.class, forVariable(variable), INITS);
     }
 
     public QWebtoon(Path<? extends Webtoon> path) {
-        super(path.getType(), path.getMetadata());
+        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
     public QWebtoon(PathMetadata metadata) {
-        super(Webtoon.class, metadata);
+        this(metadata, PathInits.getFor(metadata, INITS));
+    }
+
+    public QWebtoon(PathMetadata metadata, PathInits inits) {
+        this(Webtoon.class, metadata, inits);
+    }
+
+    public QWebtoon(Class<? extends Webtoon> type, PathMetadata metadata, PathInits inits) {
+        super(type, metadata, inits);
+        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
     }
 
 }
