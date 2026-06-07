@@ -2,8 +2,8 @@ package com.example.webtoon_archive.config;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -13,12 +13,13 @@ import java.util.Date;
 @Component // 스프링이 자동으로 관리하는 컴포넌트로 등록
 public class JwtProvider {
     
-    // 토큰 서명에 사용할 비밀키 (실무에서는 application.yml 설정파일에 숨겨서 관리)
-    private final String secretString = "yourSecretKeyMustBeVeryLongAndSecureMoreThan256BitesLong!!";
-    private final SecretKey key = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
-
+    private final SecretKey key;
     // 토큰 유효 시간: 1시간 (60분 * 60초 * 1000밀리초)
     private final long tokenValidityInMillseconds = 3600000;
+
+    public JwtProvider(@Value("${jwt.secret}") String secretString) {
+        this.key = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+    }
 
     /* 1. 로그인 성공 시 인증 토큰(JWT) 발급 */
     public String createToken(String username, String nickname) {
